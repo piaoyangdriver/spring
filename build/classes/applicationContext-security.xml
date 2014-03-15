@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+	<http pattern="/**/*.jpg" security="none" />
+	<http pattern="/**/*.png" security="none" />
+	<http pattern="/**/*.gif" security="none" />
+	<http pattern="/**/*.ico" security="none" />
+	<http pattern="/**/*.css" security="none" />
+	<http pattern="/**/*.js" security="none" />
+
+	<http pattern="/login.html" security="none" />
+
+	<http auto-config='true'>
+		<intercept-url pattern="/app.html" access="ROLE_ADMIN" />
+
+		<!-- 放在最后 -->
+		<intercept-url pattern="/**" access="ROLE_USER" />
+		<!-- 登陆页面配置 -->
+		<form-login login-page="/login.html" default-target-url="/testHello.html"
+			authentication-failure-url="/login.html?error=true" />
+
+		<!--"记住我"功能，采用持久化策略(将用户的登录信息存放在数据库表中) -->
+		<!-- <remember-me/> -->
+		<!-- 用户退出的跳转页面 -->
+		<logout logout-url="/logout.html" logout-success-url="/login.html"
+			invalidate-session="true" />
+
+		<!-- 会话管理，设置最多登录异常，error-if-maximum-exceeded = false为第二次登录就会使前一个登录失效 -->
+		<session-management invalid-session-url="/error/errorPage.html">
+			<concurrency-control max-sessions="1"
+				error-if-maximum-exceeded="false" />
+		</session-management>
+
+		<!--添加自定义的过滤器 放在FILTER_SECURITY_INTERCEPTOR之前有效 -->
+		<!-- <custom-filter ref="customFilterSecurityInterceptor"
+			before="FILTER_SECURITY_INTERCEPTOR" /> -->
+	</http>
+
+	<!-- 权限管理者 -->
+	<!-- <authentication-manager> 权限提供者 <authentication-provider> 可提供登陆访问用户 
+		<user-service> <user name="haha" password="haha" authorities="ROLE_USER, 
+		ROLE_ADMIN" /> <user name="xixi" password="xixi" authorities="ROLE_USER" 
+		/> </user-service> </authentication-provider> </authentication-manager> -->
+		
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider user-service-ref="hibernateUserDetailsService">
+		</authentication-provider>
+	</authentication-manager>
+</b:beans>
